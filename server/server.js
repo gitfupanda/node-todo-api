@@ -23,6 +23,14 @@ app.post('/todos', (req, res) => {
     })
 });
 
+app.get('/todos', (req, res) => {
+    Todo.find({}).then((todos) => {
+        res.status(200).send({todos});
+    }).catch((error) => {
+        res.status(400).send(error);
+    });
+});
+
 
 app.listen(3000, () => {
     console.log('Express started on port 3000');
