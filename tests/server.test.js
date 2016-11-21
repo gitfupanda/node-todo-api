@@ -154,3 +154,56 @@ describe('DELETE /todos/:id', () => {
             .end(done);
     });
 });
+
+describe('PATCH /todos/:id', () => {
+    
+    it('should update and return todo given an existing id and text', (done) => {
+        var id = todos[0]._id.toHexString();
+        var newText = "This is some updated text";
+        
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({text: newText})
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(newText);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toBe(null);
+            }) 
+            .end(done);
+    });
+
+    it('should update and return todo with completedAt set given an existing id, text and compeleted', (done) => {
+        var id = todos[0]._id.toHexString();
+        var newText = "This is some updated text";
+        
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({text: newText, completed: true})
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(newText);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toNotBe(null);
+            }) 
+            .end(done);
+    });
+
+    it('should return 404 given an unknown id', (done) => {
+        var id = new ObjectID();
+        
+        request(app)
+            .patch(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 404 given a malformed id', (done) => {
+        var id = 'abc1234edswje';
+        
+        request(app)
+            .patch(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+});
