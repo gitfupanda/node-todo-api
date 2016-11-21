@@ -109,5 +109,48 @@ describe('GET /todos/:id', () => {
             .expect(404)
             .end(done);
     });
+});
 
+describe('DELETE /todos/:id', () => {
+    
+    it('should delete and return todo given an existing id', (done) => {
+        var id = todos[0]._id.toHexString();
+        
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo._id).toBe(id);
+            }) 
+            .end((error, res) => {
+                if (error) {
+                    return done(error);
+                }
+
+                Todo.findById(id).then((todo) => {
+                    expect(todo).toNotExist();                    
+                    done();
+                }).catch((error) => {
+                    done(error);
+                });
+            });
+    });
+
+    it('should return 404 given an unknown id', (done) => {
+        var id = new ObjectID();
+        
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 404 given a malformed id', (done) => {
+        var id = 'abc1234edswje';
+        
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
 });
