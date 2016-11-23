@@ -329,3 +329,36 @@ describe('POST /users/login', () => {
             .end(done);
     });
 });
+
+describe('DELETE /users/me/token', () => {
+
+    it('should remove token when logout given valid token', (done) => {
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .end((err, res) => {
+                if (err){
+                    return done(err);
+                }
+
+                User.findById(users[0]._id).then((user) => {                    
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch((ex) => {
+                    done(ex);
+                });
+            });
+    });
+
+    it('should return 401 given invalid token', (done) => {
+
+        var invalidToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ODM1NTA5OTU1MzE5YTE2ZTQxM2NlMjUiLCJhY2Nlc3MiOiJhdXRoIiwiaWF0IjoxNDc5ODg5MDQ5fQ.tNkLwtUFXW2QYQFgur-vUL1vJvUjfqmpY5I34j7SXAo'
+
+         request(app)
+            .delete('/users/me/token')
+            .set('x-auth', invalidToken)
+            .expect(401)
+            .end(done);
+    });
+});
