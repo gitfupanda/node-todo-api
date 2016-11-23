@@ -197,6 +197,7 @@ describe('PATCH /todos/:id', () => {
         
         request(app)
             .patch(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .send({text: newText})
             .expect(200)
             .expect((res) => {
@@ -213,6 +214,7 @@ describe('PATCH /todos/:id', () => {
         
         request(app)
             .patch(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .send({text: newText, completed: true})
             .expect(200)
             .expect((res) => {
@@ -223,11 +225,24 @@ describe('PATCH /todos/:id', () => {
             .end(done);
     });
 
+    it('should return 404 when updating other\'s todo', (done) => {
+        var id = todos[0]._id.toHexString();
+        var newText = "This is some updated text";
+        
+        request(app)
+            .patch(`/todos/${id}`)
+            .set('x-auth', users[1].tokens[0].token)
+            .send({text: newText, completed: true})
+            .expect(404)
+            .end(done);
+    });
+
     it('should return 404 given an unknown id', (done) => {
         var id = new ObjectID();
         
         request(app)
             .patch(`/todos/${id}`)
+            .set('x-auth', users[1].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -238,6 +253,7 @@ describe('PATCH /todos/:id', () => {
         request(app)
             .patch(`/todos/${id}`)
             .expect(404)
+            .set('x-auth', users[1].tokens[0].token)
             .end(done);
     });
 });
