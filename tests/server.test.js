@@ -83,6 +83,7 @@ describe('GET /todos/:id', () => {
         
         request(app)
             .get(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect((res) => {
                 expect(res.body.todo.text).toBe(todos[0].text);
@@ -94,6 +95,7 @@ describe('GET /todos/:id', () => {
         
         request(app)
             .get(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -103,6 +105,17 @@ describe('GET /todos/:id', () => {
         
         request(app)
             .get(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should not return todo created by other user', (done) => {
+        var id = todos[0]._id
+        
+        request(app)
+            .get(`/todos/${id}`)
+            .set('x-auth', users[1].tokens[0].token)
             .expect(404)
             .end(done);
     });
@@ -310,7 +323,7 @@ describe('POST /users/login', () => {
                 }
 
                 User.findById(users[1]._id).then((user) => {                    
-                    expect(user.tokens[0]).toInclude({
+                    expect(user.tokens[1]).toInclude({
                         access: 'auth',
                         token: res.headers['x-auth']
                     });
@@ -325,14 +338,25 @@ describe('POST /users/login', () => {
         request(app)
             .post('/users/login')
             .send({
-                email: "BogusUser@BogusHost.com",
-                password: "BogusPassword1"
+                email: users[1].email,
+                password: users[1].password + 'BLAH'
             })              
             .expect(400)
             .expect((res) => {
                 expect(res.headers['x-auth']).toNotExist();                                
             })
-            .end(done);
+            .end((err, res) => {
+                if (err){
+                    return done(err);
+                }
+
+                User.findById(users[1]._id).then((user) => {                    
+                    expect(user.tokens.length).toBe(1);
+                    done();
+                }).catch((ex) => {
+                    done(ex);
+                });
+            });
     });
 });
 

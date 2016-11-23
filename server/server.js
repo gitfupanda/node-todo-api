@@ -40,7 +40,7 @@ app.get('/todos', authenticate, (req, res) => {
 });
 
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     var id = req.params.id;    
     
     
@@ -48,7 +48,10 @@ app.get('/todos/:id', (req, res) => {
         res.status(404).send();
     }
     else {
-        Todo.findById(id).then((todo) => {
+        Todo.findOne({
+            _id: id,
+            _createdBy: req.user._id
+        }).then((todo) => {
             if (!todo){
                 return res.status(404).send();
             }
