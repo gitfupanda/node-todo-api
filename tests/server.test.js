@@ -282,3 +282,50 @@ describe('POST /users', () => {
     });
 
 });
+
+describe('POST /users/login', () => {
+
+    it('should login user and return auth token given valid credentials', (done) => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: users[1].password
+            })              
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toExist();
+                expect(res.body._id).toExist();
+                expect(res.body.email).toBe(users[1].email);                
+            })
+            .end((err, res) => {
+                if (err){
+                    return done(err);
+                }
+
+                User.findById(users[1]._id).then((user) => {                    
+                    expect(user.tokens[0]).toInclude({
+                        access: 'auth',
+                        token: res.headers['x-auth']
+                    });
+                    done();
+                }).catch((ex) => {
+                    done(ex);
+                });
+            });
+    });
+
+    it('should return 400 given invalid credentials', (done) => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: "BogusUser@BogusHost.com",
+                password: "BogusPassword1"
+            })              
+            .expect(400)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toNotExist();                                
+            })
+            .end(done);
+    });
+});
