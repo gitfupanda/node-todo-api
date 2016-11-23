@@ -1,10 +1,12 @@
 {
     "test": {
         "PORT": 1000,
-        "MONGODB_URI": "mongodb://<HOST>:<27017>/<Database>"
+        "MONGODB_URI": "mongodb://<HOST>:<27017>/<Database>",
+        "JWT_SECRET": "<Random String>"
     },
     "development": {
         "PORT": 1000,
-        "MONGODB_URI": "mongodb://<HOST>:<27017>/<Database>"
+        "MONGODB_URI": "mongodb://<HOST>:<27017>/<Database>",
+        "JWT_SECRET": "<Random String>"
     }
 }
