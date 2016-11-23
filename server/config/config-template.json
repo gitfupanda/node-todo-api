@@ -1,0 +1,10 @@
+{
+    "test": {
+        "PORT": 1000,
+        "MONGODB_URI": "mongodb://<HOST>:<27017>/<Database>"
+    },
+    "development": {
+        "PORT": 1000,
+        "MONGODB_URI": "mongodb://<HOST>:<27017>/<Database>"
+    }
+}
